@@ -1,0 +1,19 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/ui/Icon.astro';
+import notFound from '@/assets/misc/404.svg';
+---
+
+<BaseLayout title="Page not found" footerCta={false}>
+  <section class="container-page flex flex-col items-center pt-16 pb-20 text-center md:pt-[144px] md:pb-[120px]">
+    <Image src={notFound} alt="404" width={640} class="w-full max-w-[640px]" loading="eager" data-reveal />
+    <p class="mt-10 text-lg font-semibold text-[#726c6c] md:text-xl" data-reveal data-reveal-delay="0.1">
+      The page you are looking for doesn't exist or has been moved.
+    </p>
+    <a href="/" class="group mt-8 inline-flex items-center gap-2 font-medium underline underline-offset-4" data-reveal data-reveal-delay="0.2">
+      Back to Home page
+      <Icon name="arrow-circle" size={16} class="transition-transform duration-300 group-hover:rotate-45" />
+    </a>
+  </section>
+</BaseLayout>

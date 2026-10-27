@@ -1,0 +1,60 @@
+---
+import { site, socials } from '@/data/site';
+import NavPills from '@/components/ui/NavPills.astro';
+import Icon from '@/components/ui/Icon.astro';
+
+interface Props {
+  /** Tampilkan blok CTA hitam berisi email (tidak dipakai di halaman 404) */
+  cta?: boolean;
+}
+
+const { cta = true } = Astro.props;
+---
+
+<footer class="container-page pb-6">
+  {
+    cta && (
+      <section class="rounded-section bg-ink px-5 py-20 text-center md:py-[130px]" data-reveal>
+        <p class="text-base text-accent md:text-lg">Let’s turn your ideas into a stunning reality.</p>
+        <a
+          href={`mailto:${site.email}`}
+          class="mt-4 inline-block text-[32px] leading-[1.2] font-bold break-all text-white transition-colors duration-300 hover:text-accent md:text-5xl lg:text-[64px]"
+        >
+          {site.email}
+        </a>
+        <nav aria-label="Footer" class="mt-10 flex justify-center">
+          <NavPills theme="dark" class="flex-wrap justify-center" />
+        </nav>
+      </section>
+    )
+  }
+
+  <div class="relative mt-6 flex flex-col items-center gap-5 md:flex-row md:justify-between">
+    <p class="text-sm">
+      Theme created by <a href="https://pentaclay.com" target="_blank" rel="noopener" class="font-semibold hover:underline">Pentaclay</a>
+    </p>
+
+    <a href="#top" class="group inline-flex items-center gap-3 text-sm md:absolute md:left-1/2 md:-translate-x-1/2">
+      Back to Top
+      <Icon name="arrow-up" size={18} class="transition-transform duration-300 group-hover:-translate-y-1" />
+    </a>
+
+    <ul class="flex gap-2">
+      {
+        socials.map((s) => (
+          <li>
+            <a
+              href={s.href}
+              target="_blank"
+              rel="noopener"
+              aria-label={s.label}
+              class="flex h-10 w-[50px] items-center justify-center rounded-full border border-line-soft bg-white text-muted transition-colors duration-300 hover:border-ink hover:bg-ink hover:text-white"
+            >
+              <Icon name={s.icon} size={20} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</footer>

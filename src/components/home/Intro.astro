@@ -1,0 +1,29 @@
+---
+import { intro } from '@/data/site';
+import Icon from '@/components/ui/Icon.astro';
+
+const words = intro.split(' ');
+---
+
+<section class="container-page py-20 md:py-[120px]">
+  <div class="grid gap-6 lg:grid-cols-[500px_1fr] lg:gap-0">
+    <p class="font-semibold" data-reveal>(Available for work)</p>
+    <div>
+      <p class="text-2xl leading-[1.25] font-bold text-subtle md:text-[32px]" data-word-reveal>
+        {
+          words.map((word) => (
+            <>
+              <span data-word class="transition-colors duration-300">
+                {word}
+              </span>{' '}
+            </>
+          ))
+        }
+      </p>
+      <a href="/portfolio" class="group mt-10 inline-flex items-center gap-1.5 px-1.5 font-medium underline underline-offset-4" data-reveal>
+        See my latest work
+        <Icon name="arrow-circle" size={16} class="transition-transform duration-300 group-hover:rotate-45" />
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,147 @@
+---
+import { Image } from 'astro:assets';
+import hero from '@/assets/home/hero.jpeg';
+import { heroStats, tools } from '@/data/site';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+---
+
+<section class="container-page" id="hero-section">
+  <div
+    class="relative isolate flex min-h-[800px] flex-col overflow-hidden rounded-section bg-[#080807] p-6 text-white md:min-h-[791px] md:p-[60px]"
+  >
+    <Image
+      src={hero}
+      alt="Portrait of Noval"
+      widths={[800, 1280, 1600]}
+      sizes="(min-width: 1440px) 1280px, 100vw"
+      loading="eager"
+      fetchpriority="high"
+      class="hero-image absolute inset-0 -z-10 size-full object-cover object-[70%_center] md:object-center"
+    />
+    <!-- gradasi agar teks tetap terbaca di layar kecil -->
+    <div class="absolute inset-0 -z-10 bg-linear-to-r from-black/70 via-black/20 to-transparent md:from-black/40"></div>
+
+    <div class="flex flex-1 flex-col justify-between gap-12 lg:flex-row">
+      <div>
+        <p class="text-lg leading-[1.3] font-semibold text-accent md:text-2xl" data-reveal>
+          Hey <span class="inline-block origin-[70%_70%] animate-[wave_2.4s_ease-in-out_infinite]">👋</span> I’m Noval
+        </p>
+        <h1
+          class="mt-3 text-[56px] leading-none font-extrabold tracking-[-0.01em] md:mt-4 md:text-[96px]"
+          data-reveal
+          data-reveal-delay="0.1"
+        >
+          Junior<br />Developer
+        </h1>
+        <div class="mt-8 md:mt-10" data-reveal data-reveal-delay="0.2">
+          <Button href="/contact">Hire Me</Button>
+        </div>
+      </div>
+
+      <div
+        class="hidden w-[232px] self-start rounded-2xl border border-white/10 bg-linear-[120deg] from-[#151413] to-[#0e100b] px-[30px] py-6 lg:block"
+        data-reveal
+        data-reveal-delay="0.3"
+      >
+        <p class="text-sm font-semibold">Experienced in</p>
+        <ul class="mt-5 flex flex-wrap gap-2">
+          {
+            tools.map((tool) => (
+              <li>
+                <a
+                  href={tool.href}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={tool.label}
+                  title={tool.label}
+                  class="flex h-10 w-[50px] items-center justify-center rounded-full border border-white/15 text-[#9f9c9c] transition-colors duration-300 hover:border-white hover:bg-white hover:text-ink"
+                >
+                  <Icon name={tool.icon} size={20} />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-16 flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
+      <p class="max-w-[305px] text-base leading-normal md:text-lg" data-reveal data-reveal-delay="0.3">
+        Junior Developer based in Bandung, Indonesia.
+      </p>
+
+      <!-- Versi mobile/tablet dari kotak "Experienced in" -->
+      <div class="w-fit rounded-2xl border border-white/10 bg-[#151413]/90 px-5 py-4 lg:hidden">
+        <p class="text-sm font-semibold">Experienced in</p>
+        <ul class="mt-4 flex flex-wrap gap-2">
+          {
+            tools.map((tool) => (
+              <li>
+                <a
+                  href={tool.href}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={tool.label}
+                  class="flex h-10 w-[50px] items-center justify-center rounded-full bg-white text-ink"
+                >
+                  <Icon name={tool.icon} size={20} />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <dl class="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3 lg:w-[592px] lg:gap-x-[47px]">
+        {
+          heroStats.map((stat, i) => (
+            <div class="border-b border-white/50 pb-2" data-reveal data-reveal-delay={0.35 + i * 0.1}>
+              <dt class="sr-only">{stat.label}</dt>
+              <dd class="text-[32px] leading-[1.2] font-semibold md:text-[40px]">
+                <span data-counter={stat.value}>{stat.value}</span>{stat.suffix}
+              </dd>
+              <dd class="mt-1 leading-[1.6] text-line" aria-hidden="true">
+                {stat.label}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-image {
+    animation: hero-zoom 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes hero-zoom {
+    from {
+      transform: scale(1.12);
+      opacity: 0;
+    }
+  }
+  @keyframes wave {
+    0%,
+    60%,
+    100% {
+      transform: rotate(0);
+    }
+    10%,
+    30% {
+      transform: rotate(14deg);
+    }
+    20% {
+      transform: rotate(-8deg);
+    }
+    40% {
+      transform: rotate(10deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-image {
+      animation: none;
+    }
+  }
+</style>

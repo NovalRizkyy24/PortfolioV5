@@ -1,0 +1,108 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/ui/Button.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import ShareBar from '@/components/ShareBar.astro';
+import Testimonials from '@/components/Testimonials.astro';
+
+export async function getStaticPaths() {
+  const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+  return projects.map((project, i) => ({
+    params: { slug: project.id },
+    props: {
+      project,
+      prev: projects[i - 1],
+      next: projects[i + 1],
+      // Proyek terkait = proyek berikutnya (kembali ke awal kalau sudah di akhir)
+      related: projects[(i + 1) % projects.length],
+    },
+  }));
+}
+
+type Props = {
+  project: CollectionEntry<'projects'>;
+  prev?: CollectionEntry<'projects'>;
+  next?: CollectionEntry<'projects'>;
+  related: CollectionEntry<'projects'>;
+};
+
+const { project, prev, next, related } = Astro.props;
+const { Content } = await render(project);
+const d = project.data;
+const dateLabel = d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const meta = [
+  ['Client', d.client],
+  ['Category', d.category],
+  ['Budget', d.budget],
+  ['Date', dateLabel],
+];
+---
+
+<BaseLayout title={d.title} description={d.summary} image={d.cover.src}>
+  <article>
+    <header class="container-page pt-8 md:pt-[60px]">
+      <div class="mx-auto grid max-w-[1156px] gap-10 lg:grid-cols-[472px_378px] lg:justify-between">
+        <div data-reveal>
+          <h1 class="text-[36px] leading-[1.2] font-medium md:text-5xl">{d.headline}</h1>
+          <p class="mt-8 leading-[1.6] text-body md:mt-[60px]">{d.summary}</p>
+        </div>
+        <dl class="self-start border-b border-line-soft" data-reveal data-reveal-delay="0.1">
+          {
+            meta.map(([label, value]) => (
+              <div class="flex justify-between gap-6 border-t border-line-soft py-[18px]">
+                <dt>{label}</dt>
+                <dd class="font-medium">{value}</dd>
+              </div>
+            ))
+          }
+          <div class="flex justify-between gap-6 border-t border-line-soft py-[18px]">
+            <dt>Available on</dt>
+            <dd class="font-medium">
+              <a href={d.liveSite.url} target="_blank" rel="noopener" class="underline underline-offset-2 hover:text-body">
+                {d.liveSite.label}
+              </a>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </header>
+
+    <div class="container-page mt-12 md:mt-20" data-reveal>
+      <Image
+        src={d.cover}
+        alt={d.title}
+        widths={[800, 1280, 1600]}
+        sizes="(min-width: 1440px) 1280px, 100vw"
+        loading="eager"
+        class="aspect-2/1 w-full rounded-card object-cover md:rounded-section"
+      />
+    </div>
+
+    <div class="container-page mt-16 md:mt-20">
+      <div class="prose-portox prose-project mx-auto max-w-[880px]">
+        <Content />
+      </div>
+      <div class="mx-auto max-w-[880px]">
+        <ShareBar
+          title={d.headline}
+          prev={prev && { href: `/portfolio/${prev.id}`, label: prev.data.title }}
+          next={next && { href: `/portfolio/${next.id}`, label: next.data.title }}
+        />
+      </div>
+    </div>
+  </article>
+
+  <section class="container-page py-20 md:py-[120px]">
+    <div class="mb-10 flex flex-col items-center gap-6 md:mb-[60px] md:flex-row md:justify-between">
+      <h2 class="text-[32px] leading-[1.2] font-bold md:text-[56px]" data-reveal>Related Projects</h2>
+      <Button href="/portfolio" variant="outline" data-reveal>View all cases</Button>
+    </div>
+    <div data-reveal>
+      <ProjectCard project={related} />
+    </div>
+  </section>
+
+  <Testimonials />
+</BaseLayout>

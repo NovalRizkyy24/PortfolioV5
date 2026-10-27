@@ -1,0 +1,62 @@
+---
+import '@/styles/global.css';
+import { site } from '@/data/site';
+import Header from '@/components/layout/Header.astro';
+import Footer from '@/components/layout/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  /** Tampilkan blok CTA email di footer */
+  footerCta?: boolean;
+  /** Konten mulai tepat di bawah navbar fixed (hero terlihat di balik navbar) */
+  overlayHeader?: boolean;
+}
+
+const { title, description = site.description, image = '/og-image.jpg', footerCta = true, overlayHeader = false } = Astro.props;
+const fullTitle = title ? `${title} | ${site.name}` : site.title;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600;700;800&family=Inter+Tight:wght@700;800&display=swap" rel="stylesheet" />
+
+    <!-- Tandai bahwa JS aktif supaya elemen [data-reveal] baru disembunyikan kalau animasinya bisa jalan -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+  <body id="top">
+    <Header />
+    <!-- Navbar fixed tidak memakan ruang, jadi beri jarak setinggi navbar kecuali konten memang ditaruh di baliknya -->
+    <main class:list={[!overlayHeader && 'pt-[80px] max-[600px]:pt-[54px]']}>
+      <slot />
+    </main>
+    <Footer cta={footerCta} />
+
+    <script>
+      import '@/scripts/animations';
+    </script>
+  </body>
+</html>

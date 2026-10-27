@@ -1,0 +1,62 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Faq from '@/components/Faq.astro';
+import Icon from '@/components/ui/Icon.astro';
+import ContactForm from '@/components/react/ContactForm';
+import { contactOptions, site } from '@/data/site';
+
+const info = [
+  { title: 'My address', value: site.address, icon: 'location', href: `https://maps.google.com/?q=${encodeURIComponent(site.address)}` },
+  { title: 'Phone number', value: site.phone, icon: 'phone', href: `tel:${site.phone.replace(/\s/g, '')}` },
+  { title: 'Email address', value: site.contactEmail, icon: 'mail', href: `mailto:${site.contactEmail}` },
+] as const;
+---
+
+<BaseLayout title="Contact" description="I’m available for hire. Let’s discuss your next project together.">
+  <section class="container-page pt-8 pb-10 text-center md:pt-14 md:pb-[60px]">
+    <h1 class="text-[40px] leading-[1.2] font-bold md:text-[64px]" data-reveal>I’m Available For Hire</h1>
+    <p class="mt-4 text-body" data-reveal data-reveal-delay="0.1">
+      Senior product designer &amp; developer in Manchester with 10+ years of experience
+    </p>
+  </section>
+
+  <section class="container-page pb-20 md:pb-[120px]">
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div class="min-h-[360px] overflow-hidden rounded-card md:rounded-section" data-reveal>
+        <iframe
+          src={`https://maps.google.com/maps?q=${encodeURIComponent(site.mapQuery)}&z=15&output=embed`}
+          title="Location map"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          class="size-full min-h-[360px] border-0"></iframe>
+      </div>
+      <div class="rounded-card bg-surface p-6 md:rounded-section md:p-[60px]" data-reveal data-reveal-delay="0.1">
+        <h2 class="mb-8 text-[32px] leading-[1.2] font-bold md:mb-10 md:text-[40px]">Let’s discuss together</h2>
+        <ContactForm client:visible services={contactOptions.services} budgets={contactOptions.budgets} fallbackEmail={site.email} />
+      </div>
+    </div>
+
+    <ul class="mt-16 grid gap-6 md:mt-[120px] md:grid-cols-3">
+      {
+        info.map((item, i) => (
+          <li data-reveal data-reveal-delay={i * 0.1}>
+            <a
+              href={item.href}
+              target={item.icon === 'location' ? '_blank' : undefined}
+              rel="noopener"
+              class="group flex h-full flex-col items-center rounded-card bg-surface px-6 py-[60px] text-center"
+            >
+              <span class="flex size-20 items-center justify-center rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.05)] transition-colors duration-300 group-hover:bg-accent">
+                <Icon name={item.icon} size={24} />
+              </span>
+              <h3 class="mt-[54px] text-2xl font-semibold">{item.title}</h3>
+              <p class="mt-3 font-semibold text-body">{item.value}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <Faq />
+</BaseLayout>

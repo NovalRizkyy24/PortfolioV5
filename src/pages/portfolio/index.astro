@@ -1,0 +1,60 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/ui/Button.astro';
+import LogoMarquee from '@/components/LogoMarquee.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import Testimonials from '@/components/Testimonials.astro';
+import Faq from '@/components/Faq.astro';
+import heroImage from '@/assets/portfolio/hero.jpg';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const INITIAL = 3;
+---
+
+<BaseLayout title="Portfolio" description="Projects I have personally created and developed.">
+  <div class="page-glow">
+    <section class="container-page pt-8 md:pt-14">
+      <div class="flex flex-col gap-8 md:flex-row md:items-start md:gap-[60px]">
+        <div class="size-[200px] shrink-0 overflow-hidden rounded-full md:size-[346px]" data-reveal>
+          <Image src={heroImage} alt="" width={692} loading="eager" class="size-full object-cover" />
+        </div>
+        <div class="max-w-[815px]" data-reveal data-reveal-delay="0.1">
+          <h1 class="max-w-[650px] text-[36px] leading-[1.2] font-bold md:text-5xl">Projects I Have Personally Created and Developed</h1>
+          <p class="mt-6 text-lg leading-[1.4] text-body md:text-2xl">
+            Latest News and Articles goes here, The most powerful software & app landing page for any kind of app and software
+            marketing business.
+          </p>
+        </div>
+      </div>
+    </section>
+    <LogoMarquee />
+  </div>
+
+  <section class="container-page pb-20 md:pb-[120px]">
+    <ul id="project-list" class="flex flex-col gap-6">
+      {
+        projects.map((project, i) => (
+          <li class:list={[i >= INITIAL && 'hidden']} data-hidden={i >= INITIAL ? '' : undefined}>
+            <div data-reveal>
+              <ProjectCard project={project} eager={i === 0} />
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+    {
+      projects.length > INITIAL && (
+        <div class="mt-10 flex justify-center">
+          <Button type="button" data-load-more="project-list">
+            Load More
+          </Button>
+        </div>
+      )
+    }
+  </section>
+
+  <Testimonials />
+  <Faq />
+</BaseLayout>

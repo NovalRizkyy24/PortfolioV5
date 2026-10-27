@@ -1,0 +1,60 @@
+---
+import Icon from '@/components/ui/Icon.astro';
+
+interface Props {
+  title: string;
+  prev?: { href: string; label: string };
+  next?: { href: string; label: string };
+}
+
+const { title, prev, next } = Astro.props;
+const url = encodeURIComponent(new URL(Astro.url.pathname, Astro.site).toString());
+const text = encodeURIComponent(title);
+const shares = [
+  { label: 'Share on Facebook', icon: 'facebook-sm', href: `https://www.facebook.com/sharer/sharer.php?u=${url}` },
+  { label: 'Instagram', icon: 'instagram-sm', href: 'https://www.instagram.com/' },
+  { label: 'Share on X', icon: 'x-sm', href: `https://x.com/intent/post?url=${url}&text=${text}` },
+] as const;
+const navLink =
+  'inline-flex h-12 items-center gap-2 rounded-full bg-surface px-7 transition-colors duration-300 hover:bg-ink hover:text-white';
+---
+
+<div class="mt-16 flex flex-col gap-8 md:mt-20 md:flex-row md:items-center md:justify-between">
+  <div class="flex items-center gap-4">
+    <span class="text-sm">Share it on :</span>
+    <ul class="flex gap-2">
+      {
+        shares.map((s) => (
+          <li>
+            <a
+              href={s.href}
+              target="_blank"
+              rel="noopener"
+              aria-label={s.label}
+              class="flex size-12 items-center justify-center rounded-full border border-line-soft transition-colors duration-300 hover:border-ink hover:bg-ink hover:text-white"
+            >
+              <Icon name={s.icon} size={16} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <nav class="flex gap-3" aria-label="Pagination">
+    {
+      prev && (
+        <a href={prev.href} class={navLink} title={prev.label}>
+          <Icon name="arrow-left" size={18} /> Previous
+        </a>
+      )
+    }
+    {
+      next && (
+        <a href={next.href} class={navLink} title={next.label}>
+          Next <Icon name="arrow-right" size={18} />
+        </a>
+      )
+    }
+  </nav>
+</div>

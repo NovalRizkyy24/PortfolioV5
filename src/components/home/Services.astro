@@ -1,0 +1,35 @@
+---
+import { getImage } from 'astro:assets';
+import { services } from '@/data/site';
+import Button from '@/components/ui/Button.astro';
+import ServicesAccordion, { type ServiceItem } from '@/components/react/ServicesAccordion';
+
+// Optimasi gambar di build time lalu kirim URL-nya ke komponen React
+const items: ServiceItem[] = await Promise.all(
+  services.map(async (s) => {
+    const img = await getImage({ src: s.image, widths: [576, 1152], format: 'webp' });
+    return {
+      title: s.title,
+      description: s.description,
+      stats: s.stats,
+      image: { src: img.src, srcset: img.srcSet.attribute, width: 576, height: 320 },
+    };
+  }),
+);
+---
+
+<section class="container-page pb-20 md:pb-[120px]">
+  <div class="mb-10 flex flex-col gap-6 md:mb-[60px] lg:flex-row lg:items-start lg:justify-between">
+    <h2 class="max-w-[506px] text-[40px] leading-[1.2] font-bold md:text-[56px]" data-reveal>
+      The coolest services I provide!
+    </h2>
+    <div class="max-w-[324px]" data-reveal data-reveal-delay="0.1">
+      <p class="leading-[1.6] text-body">
+        As an Informatics graduate, I am passionate about integrating web development with Artificial Intelligence to help bring your business to life with top-notch service.
+      </p>
+      <Button href="/contact" variant="outline" size="sm" class="mt-6">Hire Me</Button>
+    </div>
+  </div>
+
+  <ServicesAccordion client:visible services={items} />
+</section>

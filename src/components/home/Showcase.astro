@@ -1,0 +1,29 @@
+---
+import { getCollection } from 'astro:content';
+import Button from '@/components/ui/Button.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<section class="container-page pb-20 md:pb-[120px]">
+  <div class="mb-10 flex flex-col items-center gap-6 text-center md:mb-[60px] md:flex-row md:justify-between md:text-left">
+    <h2 class="max-w-[549px] text-[32px] leading-[1.2] font-bold md:text-[56px]" data-reveal>
+      Check out our awesome showcase!
+    </h2>
+    <Button href="/portfolio" variant="outline" data-reveal>View all Cases</Button>
+  </div>
+
+  <!-- Kartu menempel (sticky) dan menumpuk saat di-scroll; kartu sebelumnya mengecil (lihat initStack) -->
+  <div class="flex flex-col gap-5 md:gap-[30px]" data-stack>
+    {
+      projects.map((project, i) => (
+        <div class="md:sticky" style={`top: ${60 + i * 40}px`} data-stack-card>
+          <div class="origin-top">
+            <ProjectCard project={project} />
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>

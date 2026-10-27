@@ -1,0 +1,23 @@
+---
+import { Image } from 'astro:assets';
+
+const logos = Object.entries(
+  import.meta.glob<{ default: ImageMetadata }>('/src/assets/logos/*.svg', { eager: true }),
+)
+  .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+  .map(([, m]) => m.default);
+---
+
+<div class="container-page py-10 md:py-[60px]">
+  <div class="overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_10%,#000_90%,transparent)]">
+    <ul class="marquee-track items-center" style="--marquee-duration: 35s">
+      {
+        [...logos, ...logos].map((logo, i) => (
+          <li class="shrink-0 px-[50px]" aria-hidden={i >= logos.length ? 'true' : undefined}>
+            <Image src={logo} alt={i < logos.length ? `Partner logo ${i + 1}` : ''} class="h-[30px] w-auto opacity-80" />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>

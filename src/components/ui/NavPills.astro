@@ -1,0 +1,35 @@
+---
+import { nav } from '@/data/site';
+
+interface Props {
+  theme?: 'light' | 'dark';
+  class?: string;
+}
+
+const { theme = 'light', class: className } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => (href === '/' ? path === '/' : path === href || path.startsWith(href + '/'));
+---
+
+<ul class:list={['flex items-center', className]}>
+  {
+    nav.map((item) => (
+      <li>
+        <a
+          href={item.href}
+          aria-current={isActive(item.href) ? 'page' : undefined}
+          class:list={[
+            'block rounded-full px-5 py-[11.5px] text-sm leading-[1.2] font-medium transition-colors duration-300',
+            isActive(item.href)
+              ? 'bg-accent text-ink'
+              : theme === 'light'
+                ? 'bg-surface text-ink hover:bg-ink hover:text-white'
+                : 'bg-pill-dark text-[#f2f2f2] hover:bg-white hover:text-ink',
+          ]}
+        >
+          {item.label}
+        </a>
+      </li>
+    ))
+  }
+</ul>
