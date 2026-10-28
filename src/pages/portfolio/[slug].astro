@@ -5,10 +5,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@/components/ui/Button.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
 import ShareBar from '@/components/ShareBar.astro';
-import Testimonials from '@/components/Testimonials.astro';
 
 export async function getStaticPaths() {
-  const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+  const projects = (await getCollection('projects')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
   return projects.map((project, i) => ({
     params: { slug: project.id },
     props: {
@@ -32,12 +31,20 @@ const { project, prev, next, related } = Astro.props;
 const { Content } = await render(project);
 const d = project.data;
 const dateLabel = d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+// Baris tanpa nilai (mis. budget kosong) tidak ditampilkan
 const meta = [
   ['Client', d.client],
   ['Category', d.category],
   ['Budget', d.budget],
   ['Date', dateLabel],
-];
+].filter(([, value]) => value);
+const links = [
+  d.liveSite && { label: 'Available on', text: d.liveSite.label, url: d.liveSite.url },
+  d.github && { label: 'Source code', text: 'GitHub', url: d.github },
+  d.video && { label: 'Demo video', text: 'YouTube', url: d.video },
+].filter((link) => !!link);
+// ID video YouTube dari link youtu.be/<id> atau youtube.com/watch?v=<id>
+const videoId = d.video?.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([\w-]{11})/)?.[1];
 ---
 
 <BaseLayout title={d.title} description={d.summary} image={d.cover.src}>
@@ -47,6 +54,13 @@ const meta = [
         <div data-reveal>
           <h1 class="text-[36px] leading-[1.2] font-medium md:text-5xl">{d.headline}</h1>
           <p class="mt-8 leading-[1.6] text-body md:mt-[60px]">{d.summary}</p>
+          {d.techStack.length > 0 && (
+            <ul class="mt-6 flex flex-wrap gap-2" aria-label="Tech stack">
+              {d.techStack.map((tech) => (
+                <li class="rounded-full bg-surface px-4 py-2 text-sm font-medium text-ink">{tech}</li>
+              ))}
+            </ul>
+          )}
         </div>
         <dl class="self-start border-b border-line-soft" data-reveal data-reveal-delay="0.1">
           {
@@ -57,14 +71,18 @@ const meta = [
               </div>
             ))
           }
-          <div class="flex justify-between gap-6 border-t border-line-soft py-[18px]">
-            <dt>Available on</dt>
-            <dd class="font-medium">
-              <a href={d.liveSite.url} target="_blank" rel="noopener" class="underline underline-offset-2 hover:text-body">
-                {d.liveSite.label}
-              </a>
-            </dd>
-          </div>
+          {
+            links.map((link) => (
+              <div class="flex justify-between gap-6 border-t border-line-soft py-[18px]">
+                <dt>{link.label}</dt>
+                <dd class="font-medium">
+                  <a href={link.url} target="_blank" rel="noopener" class="underline underline-offset-2 hover:text-body">
+                    {link.text}
+                  </a>
+                </dd>
+              </div>
+            ))
+          }
         </dl>
       </div>
     </header>
@@ -79,6 +97,22 @@ const meta = [
         class="aspect-2/1 w-full rounded-card object-cover md:rounded-section"
       />
     </div>
+
+    {
+      videoId && (
+        <div class="container-page mt-6" data-reveal>
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${videoId}`}
+            title={`${d.title} demo video`}
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+            class="aspect-video w-full rounded-card bg-ink md:rounded-section"
+          />
+        </div>
+      )
+    }
 
     <div class="container-page mt-16 md:mt-20">
       <div class="prose-portox prose-project mx-auto max-w-[880px]">
@@ -104,5 +138,4 @@ const meta = [
     </div>
   </section>
 
-  <Testimonials />
 </BaseLayout>

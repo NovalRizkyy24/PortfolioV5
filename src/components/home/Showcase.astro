@@ -3,15 +3,15 @@ import { getCollection } from 'astro:content';
 import Button from '@/components/ui/Button.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
 
-const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const projects = (await getCollection('projects')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
 <section class="container-page pb-20 md:pb-[120px]">
   <div class="mb-10 flex flex-col items-center gap-6 text-center md:mb-[60px] md:flex-row md:justify-between md:text-left">
     <h2 class="max-w-[549px] text-[32px] leading-[1.2] font-bold md:text-[56px]" data-reveal>
-      Check out our awesome showcase!
+      Featured Projects
     </h2>
-    <Button href="/portfolio" variant="outline" data-reveal>View all Cases</Button>
+    <Button href="/portfolio" variant="outline" data-reveal>View all Project</Button>
   </div>
 
   <!-- Kartu menempel (sticky) dan menumpuk saat di-scroll; kartu sebelumnya mengecil (lihat initStack) -->

@@ -11,11 +11,14 @@ const projects = defineCollection({
       cover: image(),
       client: z.string(),
       category: z.string(),
-      budget: z.string(),
+      budget: z.string().optional(),
       date: z.coerce.date(),
-      liveSite: z.object({ label: z.string(), url: z.string().url() }),
+      liveSite: z.object({ label: z.string(), url: z.string().url() }).optional(),
+      github: z.string().url().optional(),
+      video: z.string().url().optional(),
+      techStack: z.array(z.string()).default([]),
       summary: z.string(),
-      order: z.number(),
+      order: z.number().optional(),
     }),
 });
 

@@ -5,11 +5,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@/components/ui/Button.astro';
 import LogoMarquee from '@/components/LogoMarquee.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
-import Testimonials from '@/components/Testimonials.astro';
-import Faq from '@/components/Faq.astro';
 import heroImage from '@/assets/portfolio/hero.jpg';
 
-const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const projects = (await getCollection('projects')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const INITIAL = 3;
 ---
 
@@ -55,6 +53,4 @@ const INITIAL = 3;
     }
   </section>
 
-  <Testimonials />
-  <Faq />
 </BaseLayout>

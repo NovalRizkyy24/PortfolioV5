@@ -162,3 +162,11 @@ html.js [data-reveal] {
 .prose-project p:has(> img + img) img {
   aspect-ratio: 1;
 }
+/* ![alt](src "natural") -> gambar utuh tanpa dipotong; "phone" -> screenshot HP, di tengah dan lebih sempit */
+.prose-project p:has(> img) img:is([title='natural'], [title='phone']) {
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+.prose-project p:has(> img) img[title='phone'] {
+  @apply mx-auto w-auto max-h-[720px];
+}

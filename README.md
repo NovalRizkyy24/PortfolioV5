@@ -27,8 +27,8 @@ npm run preview   # cek hasil build
 
 ## Mengganti konten
 
-- **Teks umum, menu, layanan, testimoni, FAQ, pengalaman, awards, email, sosial media** → `src/data/site.ts`
-- **Proyek portfolio** → `src/content/projects/*.md`. Galeri: satu gambar per baris = gambar lebar, dua gambar dalam satu baris = dua gambar persegi berdampingan.
+- **Teks umum, menu, layanan, pengalaman, email, sosial media** → `src/data/site.ts`
+- **Proyek portfolio** → `src/content/projects/*.md`. Galeri: satu gambar per baris = gambar lebar, dua gambar dalam satu baris = dua gambar persegi berdampingan. Tambahkan judul `"natural"` (gambar utuh) atau `"phone"` (screenshot HP) di akhir link gambar, dan isi `video` dengan link YouTube untuk menampilkan video demo.
 - **Navbar** → `src/components/layout/Header.astro`
 - **Gambar** → `src/assets/` (otomatis dioptimasi ke WebP saat build)
 - **Warna & font** → blok `@theme` di `src/styles/global.css`
@@ -44,8 +44,9 @@ Kalau dibiarkan kosong, tombol Submit akan membuka aplikasi email pengunjung den
 |---|---|
 | Navbar: logo memantul saat hover, efek text roll pada menu | `src/components/layout/Header.astro` |
 | Reveal saat scroll, counter angka, warna kata mengikuti scroll, kartu proyek bertumpuk, kursor "View case" | `src/scripts/animations.ts` |
-| Accordion layanan, slider testimoni, FAQ, form kontak | `src/components/react/*.tsx` |
-| Marquee logo & teks "TESTIMONIALS" | CSS `.marquee-track` di `src/styles/global.css` |
+| Accordion layanan, form kontak | `src/components/react/*.tsx` |
+| Slider foto (looping) di halaman About | `src/pages/about.astro` |
+| Marquee logo | CSS `.marquee-track` di `src/styles/global.css` |
 
 Semua animasi menghormati setting `prefers-reduced-motion`.
 
