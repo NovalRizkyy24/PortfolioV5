@@ -4,46 +4,65 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@/components/ui/Button.astro';
 import Icon from '@/components/ui/Icon.astro';
 import LogoMarquee from '@/components/LogoMarquee.astro';
-import Faq from '@/components/Faq.astro';
-import portrait from '@/assets/about/portrait.png';
-import award from '@/assets/about/award.jpg';
-import { aboutStats, awards, experience } from '@/data/site';
+import { experience } from '@/data/site';
 
 const aboutSocials = [
-  { label: 'Facebook', href: 'https://www.facebook.com/', icon: 'facebook-sm' },
-  { label: 'Instagram', href: 'https://www.instagram.com/', icon: 'instagram-sm' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/', icon: 'linkedin' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/novalrizky/', icon: 'linkedin' },
+  { label: 'Instagram', href: 'https://www.instagram.com/novalrizky24_/', icon: 'instagram-sm' },
+  { label: 'GitHub', href: 'https://github.com/NovalRizkyy24', icon: 'github' },
 ] as const;
+
+// Semua foto di assets/about/potrait, diurutkan berdasarkan nomor file (1.png jadi foto pertama)
+const portraits = Object.entries(import.meta.glob<{ default: ImageMetadata }>('/src/assets/about/potrait/*.{png,jpg,jpeg,webp}', { eager: true }))
+  .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+  .map(([, mod]) => mod.default);
 ---
 
-<BaseLayout title="About" description="I’m a web designer and developer in Manchester with over a decade of industry experience.">
+<BaseLayout title="About" description="I’m a junior developer from Bandung, Indonesia, building web applications that combine backend logic, frontend design, and artificial intelligence.">
   <div class="page-glow">
     <section class="container-page pt-8 md:pt-14">
       <div class="grid items-stretch gap-10 lg:grid-cols-[576px_1fr] lg:gap-[77px]">
-        <div class="overflow-hidden rounded-section" data-reveal>
-          <Image src={portrait} alt="Portrait of Andro" widths={[576, 1152]} sizes="(min-width: 1200px) 576px, 100vw" loading="eager" class="size-full object-cover" />
+        <div class="group relative self-start overflow-hidden rounded-section" data-reveal data-portrait-slider>
+          <div class="portrait-track flex aspect-square snap-x snap-mandatory overflow-x-auto" data-track>
+            {
+              portraits.map((img, i) => (
+                <Image
+                  src={img}
+                  alt={`Portrait of Noval ${i + 1}`}
+                  widths={[576, 1152]}
+                  sizes="(min-width: 1200px) 576px, 100vw"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  class="size-full shrink-0 snap-start object-cover"
+                />
+              ))
+            }
+          </div>
+
+          <button
+            type="button"
+            class="absolute top-1/2 left-4 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 opacity-0 backdrop-blur transition duration-300 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
+            aria-label="Previous photo"
+            data-prev
+          >
+            <Icon name="arrow-left" size={18} />
+          </button>
+          <button
+            type="button"
+            class="absolute top-1/2 right-4 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 opacity-0 backdrop-blur transition duration-300 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
+            aria-label="Next photo"
+            data-next
+          >
+            <Icon name="arrow-right" size={18} />
+          </button>
         </div>
 
         <div class="flex flex-col justify-between gap-12">
           <div data-reveal data-reveal-delay="0.1">
-            <h1 class="text-[36px] leading-[1.2] font-bold md:text-5xl">I’m a web designer and developer in Manchester.</h1>
+            <h1 class="text-[36px] leading-[1.2] font-bold md:text-5xl">I’m a junior developer</h1>
             <p class="mt-6 text-lg leading-[1.4] text-[#726c6c] md:text-2xl">
-              With over a decade of industry experience, I specialize in creating visually appealing and functional websites.
+              As an Informatics graduate from Institut Teknologi Nasional Bandung, I build modern web applications that bring together solid backend logic, clean frontend design, and artificial intelligence.
             </p>
           </div>
-
-          <dl class="flex flex-col gap-10" data-reveal data-reveal-delay="0.2">
-            {
-              aboutStats.map((stat) => (
-                <div class="flex flex-col-reverse border-b border-line pb-3">
-                  <dt class="mt-2 font-medium text-body">{stat.label}</dt>
-                  <dd class="text-[40px] leading-[1.2] font-semibold">
-                    <span data-counter={stat.value}>{stat.value}</span>{stat.suffix}
-                  </dd>
-                </div>
-              ))
-            }
-          </dl>
 
           <div class="flex flex-wrap items-center gap-4" data-reveal data-reveal-delay="0.3">
             <Button href="/contact" variant="dark">Hire Me</Button>
@@ -68,63 +87,120 @@ const aboutSocials = [
     <LogoMarquee />
   </div>
 
-  <!-- Pengalaman kerja -->
+  <!-- Pengalaman: timeline dua sisi (bergantian kiri-kanan di desktop, satu kolom di mobile) -->
   <section class="container-page pb-20 md:pb-[120px]">
-    <div class="rounded-section bg-ink px-4 py-16 text-white md:px-6 md:py-[100px]">
-      <h2 class="text-center text-[36px] leading-[1.2] font-bold md:text-[56px]" data-reveal>10 years of experience</h2>
-      <ul class="mt-10 flex flex-col gap-6 md:mt-[60px]">
+    <div class="rounded-section bg-ink px-5 py-16 text-white md:px-10 md:py-[100px]">
+      <div class="text-center">
+        <p class="text-sm font-semibold tracking-[0.2em] text-accent uppercase" data-reveal>Experience</p>
+        <h2 class="mt-3 text-[36px] leading-[1.2] font-bold md:text-[56px]" data-reveal data-reveal-delay="0.05">Where I’ve been</h2>
+      </div>
+
+      <ol class="relative mx-auto mt-12 max-w-[1000px] md:mt-16">
+        <span class="absolute inset-y-0 left-[7px] w-px bg-white/15 md:left-1/2 md:-translate-x-1/2" aria-hidden="true"></span>
         {
-          experience.map((job, i) => (
-            <li
-              class="group grid grid-cols-[48px_1fr] items-center gap-x-4 gap-y-2 rounded-[52px] border border-white/10 px-6 py-6 transition-colors duration-500 hover:border-accent/60 hover:bg-white/[0.03] md:grid-cols-[48px_1fr_336px_168px] md:px-7"
-              data-reveal
-              data-reveal-delay={i * 0.06}
-            >
-              <Image src={job.icon} alt="" width={48} height={48} class="row-span-2 md:row-span-1" />
-              <h3 class="text-xl font-semibold md:text-2xl">{job.role}</h3>
-              <a
-                href={`https://${job.site}`}
-                target="_blank"
-                rel="noopener"
-                class="col-start-2 text-accent hover:underline md:col-start-auto"
+          experience.map((item, i) => {
+            const left = i % 2 === 0;
+            return (
+              <li
+                class:list={['relative pb-10 pl-10 last:pb-0 md:w-1/2 md:pl-0', left ? 'md:pr-14' : 'md:ml-auto md:pl-14']}
+                data-reveal
+                data-reveal-delay={i * 0.08}
               >
-                {job.site}
-              </a>
-              <p class="col-start-2 text-[#f2f2f2] md:col-start-auto">{job.period}</p>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
-
-  <!-- Penghargaan -->
-  <section class="container-page pb-20 md:pb-[120px]">
-    <div class="grid gap-10 lg:grid-cols-[538px_1fr] lg:gap-[115px]">
-      <div class="overflow-hidden rounded-section" data-reveal>
-        <Image src={award} alt="Silver trophy" widths={[538, 1076]} sizes="(min-width: 1200px) 538px, 100vw" class="size-full object-cover" />
-      </div>
-      <div class="lg:pt-2">
-        <h2 class="text-[40px] leading-[1.2] font-bold md:text-[56px]" data-reveal>Awards</h2>
-        <p class="mt-6 leading-[1.6] text-body" data-reveal>
-          The if calculus is earnestly starting repeat by moving rethoric drunk or the caching lay if desk steps. A was him matters with of that breakfasts.
-        </p>
-        <ul class="mt-10 border-b border-line-soft md:mt-[60px]">
-          {
-            awards.map((a) => (
-              <li class="grid grid-cols-[1fr_auto] gap-x-6 gap-y-2 border-t border-line-soft py-6 md:grid-cols-[207px_1fr_auto] md:py-[30px]" data-reveal>
-                <p class="col-start-1 row-start-1 text-lg font-semibold">{a.name}</p>
-                <p class="col-span-2 row-start-2 max-w-[194px] leading-[1.6] text-body md:col-span-1 md:col-start-2 md:row-start-1">
-                  {a.description}
-                </p>
-                <p class="col-start-2 row-start-1 font-medium text-pill-dark md:col-start-3">{a.year}</p>
+                <span
+                  class:list={[
+                    'absolute top-7 left-0 size-[15px] rounded-full border-2 border-accent bg-ink',
+                    left ? 'md:right-0 md:left-auto md:translate-x-1/2' : 'md:-translate-x-1/2',
+                  ]}
+                  aria-hidden="true"
+                ></span>
+                <article class="rounded-card border border-white/10 bg-white/[0.03] p-6 transition-colors duration-500 hover:border-accent/60 md:p-7">
+                  <div class="flex flex-wrap items-center gap-3">
+                    <p class="font-semibold text-accent">{item.period}</p>
+                    <span class="rounded-full border border-white/15 px-3 py-1 text-xs font-medium text-[#cfcfcf]">{item.type}</span>
+                  </div>
+                  <h3 class="mt-4 text-xl leading-[1.3] font-semibold md:text-2xl">{item.title}</h3>
+                  <p class="mt-1 text-[#bdbaba]">{item.org}</p>
+                  {item.points.length > 0 && (
+                    <ul class="mt-4 list-disc space-y-1.5 pl-5 leading-[1.6] text-[#e6e6e6] marker:text-accent">
+                      {item.points.map((point) => <li>{point}</li>)}
+                    </ul>
+                  )}
+                </article>
               </li>
-            ))
-          }
-        </ul>
-      </div>
+            );
+          })
+        }
+      </ol>
     </div>
   </section>
-
-  <Faq title="Frequently asked questions" />
 </BaseLayout>
+
+<style>
+  .portrait-track {
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+  }
+  .portrait-track::-webkit-scrollbar {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .portrait-track {
+      scroll-behavior: auto;
+    }
+  }
+</style>
+
+<script>
+  // Slider foto: geser (swipe/scroll) atau pakai tombol panah
+  document.querySelectorAll<HTMLElement>('[data-portrait-slider]').forEach((slider) => {
+    const track = slider.querySelector<HTMLElement>('[data-track]')!;
+    const prev = slider.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = slider.querySelector<HTMLButtonElement>('[data-next]')!;
+
+    const count = track.children.length;
+
+    // Looping mulus: salinan foto terakhir di depan dan salinan foto pertama di belakang.
+    // Dari foto terakhir, slider tetap bergeser ke kanan ke salinan foto 1, lalu diam-diam
+    // melompat ke foto 1 yang asli (begitu juga sebaliknya ke arah kiri).
+    const slides = [...track.children] as HTMLElement[];
+    const firstClone = slides[0].cloneNode(true) as HTMLElement;
+    const lastClone = slides[count - 1].cloneNode(true) as HTMLElement;
+    [firstClone, lastClone].forEach((el) => {
+      el.setAttribute('aria-hidden', 'true');
+      el.setAttribute('alt', '');
+    });
+    track.append(firstClone);
+    track.prepend(lastClone);
+
+    // Posisi slot di track: 0 = salinan terakhir, 1..count = foto asli, count + 1 = salinan pertama
+    const slot = () => Math.round(track.scrollLeft / track.clientWidth);
+    const jumpTo = (s: number) => {
+      track.style.scrollBehavior = 'auto';
+      track.scrollLeft = s * track.clientWidth;
+      track.style.scrollBehavior = '';
+    };
+    const goTo = (s: number) => track.scrollTo({ left: s * track.clientWidth });
+
+    const settle = () => {
+      const s = slot();
+      if (s === 0) jumpTo(count);
+      else if (s === count + 1) jumpTo(1);
+    };
+
+    let settleTimer: number;
+    track.addEventListener(
+      'scroll',
+      () => {
+        clearTimeout(settleTimer);
+        settleTimer = window.setTimeout(settle, 120);
+      },
+      { passive: true },
+    );
+
+    prev.addEventListener('click', () => goTo(slot() - 1));
+    next.addEventListener('click', () => goTo(slot() + 1));
+    window.addEventListener('resize', () => jumpTo(slot()));
+
+    jumpTo(1);
+  });
+</script>

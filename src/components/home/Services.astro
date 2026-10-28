@@ -11,7 +11,7 @@ const items: ServiceItem[] = await Promise.all(
     return {
       title: s.title,
       description: s.description,
-      stats: s.stats,
+      tools: s.tools,
       image: { src: img.src, srcset: img.srcSet.attribute, width: 576, height: 320 },
     };
   }),
@@ -21,7 +21,7 @@ const items: ServiceItem[] = await Promise.all(
 <section class="container-page pb-20 md:pb-[120px]">
   <div class="mb-10 flex flex-col gap-6 md:mb-[60px] lg:flex-row lg:items-start lg:justify-between">
     <h2 class="max-w-[506px] text-[40px] leading-[1.2] font-bold md:text-[56px]" data-reveal>
-      The coolest services I provide!
+      Areas of expertise and services
     </h2>
     <div class="max-w-[324px]" data-reveal data-reveal-delay="0.1">
       <p class="leading-[1.6] text-body">

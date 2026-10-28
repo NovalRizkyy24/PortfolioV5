@@ -1,9 +1,11 @@
 ---
 import { Image } from 'astro:assets';
 import hero from '@/assets/home/hero.jpeg';
-import { heroStats, tools } from '@/data/site';
+import { heroStats } from '@/data/site';
 import Button from '@/components/ui/Button.astro';
-import Icon from '@/components/ui/Icon.astro';
+
+// Statistik hero disembunyikan dulu; ubah ke true untuk menampilkannya lagi
+const showStats = true;
 ---
 
 <section class="container-page" id="hero-section">
@@ -38,76 +40,32 @@ import Icon from '@/components/ui/Icon.astro';
           <Button href="/contact">Hire Me</Button>
         </div>
       </div>
-
-      <div
-        class="hidden w-[232px] self-start rounded-2xl border border-white/10 bg-linear-[120deg] from-[#151413] to-[#0e100b] px-[30px] py-6 lg:block"
-        data-reveal
-        data-reveal-delay="0.3"
-      >
-        <p class="text-sm font-semibold">Experienced in</p>
-        <ul class="mt-5 flex flex-wrap gap-2">
-          {
-            tools.map((tool) => (
-              <li>
-                <a
-                  href={tool.href}
-                  target="_blank"
-                  rel="noopener"
-                  aria-label={tool.label}
-                  title={tool.label}
-                  class="flex h-10 w-[50px] items-center justify-center rounded-full border border-white/15 text-[#9f9c9c] transition-colors duration-300 hover:border-white hover:bg-white hover:text-ink"
-                >
-                  <Icon name={tool.icon} size={20} />
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
     </div>
 
     <div class="mt-16 flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
       <p class="max-w-[305px] text-base leading-normal md:text-lg" data-reveal data-reveal-delay="0.3">
-        Junior Developer based in Bandung, Indonesia.
+        Integrating backend logic with stunning frontend design and artificial intelligence.
       </p>
 
-      <!-- Versi mobile/tablet dari kotak "Experienced in" -->
-      <div class="w-fit rounded-2xl border border-white/10 bg-[#151413]/90 px-5 py-4 lg:hidden">
-        <p class="text-sm font-semibold">Experienced in</p>
-        <ul class="mt-4 flex flex-wrap gap-2">
+      {
+        showStats && (
+        <dl class="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3 lg:w-[592px] lg:gap-x-[47px]">
           {
-            tools.map((tool) => (
-              <li>
-                <a
-                  href={tool.href}
-                  target="_blank"
-                  rel="noopener"
-                  aria-label={tool.label}
-                  class="flex h-10 w-[50px] items-center justify-center rounded-full bg-white text-ink"
-                >
-                  <Icon name={tool.icon} size={20} />
-                </a>
-              </li>
+            heroStats.map((stat, i) => (
+              <div class="border-b border-white/50 pb-2" data-reveal data-reveal-delay={0.35 + i * 0.1}>
+                <dt class="sr-only">{stat.label}</dt>
+                <dd class="text-[32px] leading-[1.2] font-semibold md:text-[40px]">
+                  <span data-counter={stat.value}>{stat.value}</span>{stat.suffix}
+                </dd>
+                <dd class="mt-1 leading-[1.6] text-line" aria-hidden="true">
+                  {stat.label}
+                </dd>
+              </div>
             ))
           }
-        </ul>
-      </div>
-
-      <dl class="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3 lg:w-[592px] lg:gap-x-[47px]">
-        {
-          heroStats.map((stat, i) => (
-            <div class="border-b border-white/50 pb-2" data-reveal data-reveal-delay={0.35 + i * 0.1}>
-              <dt class="sr-only">{stat.label}</dt>
-              <dd class="text-[32px] leading-[1.2] font-semibold md:text-[40px]">
-                <span data-counter={stat.value}>{stat.value}</span>{stat.suffix}
-              </dd>
-              <dd class="mt-1 leading-[1.6] text-line" aria-hidden="true">
-                {stat.label}
-              </dd>
-            </div>
-          ))
-        }
-      </dl>
+        </dl>
+        )
+      }
     </div>
   </div>
 </section>

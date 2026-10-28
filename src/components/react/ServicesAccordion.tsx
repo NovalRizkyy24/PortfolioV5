@@ -1,13 +1,12 @@
 import { useId, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import Icon from '@/components/ui/Icon';
-import CountUp from './CountUp';
 
 export type ServiceItem = {
   title: string;
   description: string;
   image: { src: string; srcset?: string; width: number; height: number };
-  stats: { value: number; label: string }[];
+  tools: string[];
 };
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -60,16 +59,13 @@ export default function ServicesAccordion({ services }: { services: ServiceItem[
                   <div className="grid gap-8 px-5 pb-5 md:px-10 md:pb-10 lg:grid-cols-[540px_1fr] lg:gap-[84px]">
                     <div className="flex flex-col justify-between gap-10">
                       <p className="leading-[1.6] text-body">{service.description}</p>
-                      <dl className="grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-3">
-                        {service.stats.map((stat) => (
-                          <div key={stat.label} className="flex flex-col-reverse border-b border-line pb-2">
-                            <dt className="mt-2 font-medium text-body">{stat.label}</dt>
-                            <dd className="text-[32px] leading-[1.2] font-semibold md:text-[40px]">
-                              <CountUp value={stat.value} suffix="+" />
-                            </dd>
-                          </div>
+                      <ul className="flex flex-wrap gap-2" aria-label="Tools">
+                        {service.tools.map((tool) => (
+                          <li key={tool} className="rounded-full bg-surface px-4 py-2 text-sm font-medium text-ink">
+                            {tool}
+                          </li>
                         ))}
-                      </dl>
+                      </ul>
                     </div>
                     <div className="overflow-hidden rounded-card">
                       <motion.img
