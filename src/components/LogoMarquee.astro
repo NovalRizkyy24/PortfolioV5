@@ -1,23 +1,31 @@
 ---
-import { Image } from 'astro:assets';
-
-const logos = Object.entries(
-  import.meta.glob<{ default: ImageMetadata }>('/src/assets/logos/*.svg', { eager: true }),
-)
-  .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
-  .map(([, m]) => m.default);
+import { techStack } from '@/data/tech-stack';
 ---
 
+<!-- Marquee teknologi: logo abu-abu, berubah ke warna brand saat di-hover -->
 <div class="container-page py-10 md:py-[60px]">
   <div class="overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_10%,#000_90%,transparent)]">
-    <ul class="marquee-track items-center" style="--marquee-duration: 35s">
+    <ul class="marquee-track items-center" style="--marquee-duration: 45s" aria-label="Tech stack">
       {
-        [...logos, ...logos].map((logo, i) => (
-          <li class="shrink-0 px-[50px]" aria-hidden={i >= logos.length ? 'true' : undefined}>
-            <Image src={logo} alt={i < logos.length ? `Partner logo ${i + 1}` : ''} class="h-[30px] w-auto opacity-80" />
+        [...techStack, ...techStack].map((tech, i) => (
+          <li
+            class="tech-logo flex shrink-0 items-center gap-3 px-8 text-[#a5a5a5] transition-colors duration-300 md:px-10"
+            style={`--brand: ${tech.color}`}
+            aria-hidden={i >= techStack.length ? 'true' : undefined}
+          >
+            <svg viewBox="0 0 24 24" class="size-[30px] shrink-0" fill="currentColor" aria-hidden="true">
+              <path d={tech.path} />
+            </svg>
+            <span class="text-lg font-semibold whitespace-nowrap">{tech.name}</span>
           </li>
         ))
       }
     </ul>
   </div>
 </div>
+
+<style>
+  .tech-logo:hover {
+    color: var(--brand);
+  }
+</style>
