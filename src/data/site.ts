@@ -9,7 +9,7 @@ import devops from '@/assets/services/devops.jpg';
 
 export const site = {
   name: 'Noval Rizky Nugraha',
-  title: 'Noval Rizky Nugraha - Fullstack Developer',
+  title: 'Noval Rizky Nugraha | Fullstack Developer',
   description:
     'Portfolio of Noval Rizky Nugraha, a fullstack developer and AI engineer from Indonesia building web applications, AI agents, and IoT projects.',
   owner: 'Noval Rizky Nugraha',
