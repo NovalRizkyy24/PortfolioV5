@@ -8,11 +8,11 @@ import machineLearningData from '@/assets/services/machine-learning-data.jpg';
 import devops from '@/assets/services/devops.jpg';
 
 export const site = {
-  name: 'Portox',
-  title: 'Portox - Personal Portfolio & Agency Site',
+  name: 'Noval Rizky Nugraha',
+  title: 'Noval Rizky Nugraha - Fullstack Developer',
   description:
-    'Portox is a personal portfolio & agency site designed to showcase your work. Ideal for freelancers, creative portfolios, creative agencies, digital agencies and personal portfolios.',
-  owner: 'Andro',
+    'Portfolio of Noval Rizky Nugraha, a fullstack developer and AI engineer from Indonesia building web applications, AI agents, and IoT projects.',
+  owner: 'Noval Rizky Nugraha',
   email: 'novalrizkynugraha@gmail.com',
 };
 
@@ -29,11 +29,8 @@ export const socials: { label: string; href: string; icon: IconName }[] = [
   { label: 'GitHub', href: 'https://github.com/NovalRizkyy24', icon: 'github' },
 ];
 
-export const heroStats = [
-  { value: 20, suffix: '+', label: 'Years of experience' },
-  { value: 2, suffix: 'k+', label: 'Happy clients' },
-  { value: 160, suffix: '+', label: 'Country' },
-];
+// Awal pengalaman, untuk menghitung "Years of experience" di hero (otomatis bertambah tiap September)
+export const careerStart = new Date('2022-09-01');
 
 export const intro =
   'Welcome to my portfolio! I’m Noval Rizky Nugraha, a Web Developer and AI Engineer based in Indonesia. As an Informatics graduate from Institut Teknologi Nasional Bandung, I specialize in combining web technologies with Artificial Intelligence to build smart, highly dynamic, and futuristic web applications.';

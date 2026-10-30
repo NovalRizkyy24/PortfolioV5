@@ -5,8 +5,8 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  // Ganti dengan domain production kamu (dipakai untuk sitemap & canonical URL)
-  site: 'https://portox.example.com',
+  // Domain production (dipakai untuk sitemap, canonical URL, dan gambar pratinjau link)
+  site: 'https://novalrizky24.my.id',
   integrations: [react(), sitemap()],
   vite: {
     plugins: [tailwindcss()],

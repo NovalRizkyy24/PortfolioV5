@@ -1,11 +1,24 @@
 ---
 import { Image } from 'astro:assets';
 import hero from '@/assets/home/hero.jpeg';
-import { heroStats } from '@/data/site';
+import { getCollection } from 'astro:content';
+import { careerStart } from '@/data/site';
+import { certificates } from '@/data/certificates';
 import Button from '@/components/ui/Button.astro';
 
 // Statistik hero disembunyikan dulu; ubah ke true untuk menampilkannya lagi
-const showStats = true;
+const showStats = false;
+
+// Dihitung saat build: tahun penuh sejak careerStart, jumlah project, dan jumlah sertifikat
+const now = new Date();
+const years =
+  now.getFullYear() - careerStart.getFullYear() -
+  (now.getMonth() < careerStart.getMonth() || (now.getMonth() === careerStart.getMonth() && now.getDate() < careerStart.getDate()) ? 1 : 0);
+const heroStats = [
+  { value: years, suffix: '+', label: 'Years of experience' },
+  { value: (await getCollection('projects')).length, suffix: '', label: 'Projects' },
+  { value: certificates.length, suffix: '', label: 'Certificates' },
+];
 ---
 
 <section class="container-page" id="hero-section">
