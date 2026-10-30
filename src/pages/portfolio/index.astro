@@ -1,11 +1,10 @@
 ---
-import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@/components/ui/Button.astro';
 import LogoMarquee from '@/components/LogoMarquee.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
-import heroImage from '@/assets/portfolio/hero.jpg';
+import KeyboardScene from '@/components/KeyboardScene.astro';
 
 const projects = (await getCollection('projects')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const INITIAL = 3;
@@ -14,15 +13,14 @@ const INITIAL = 3;
 <BaseLayout title="Portfolio" description="Projects I have personally created and developed.">
   <div class="page-glow">
     <section class="container-page pt-8 md:pt-14">
-      <div class="flex flex-col gap-8 md:flex-row md:items-start md:gap-[60px]">
-        <div class="size-[200px] shrink-0 overflow-hidden rounded-full md:size-[346px]" data-reveal>
-          <Image src={heroImage} alt="" width={692} loading="eager" class="size-full object-cover" />
-        </div>
+      <div class="flex flex-col gap-8 md:flex-row md:items-center md:gap-[60px]">
+        <!-- Keyboard 3D tech stack (miring); tombol tertekan saat kursor diarahkan -->
+        <KeyboardScene class="aspect-[4/3] w-full shrink-0 md:w-[440px] lg:w-[520px]" />
         <div class="max-w-[815px]" data-reveal data-reveal-delay="0.1">
           <h1 class="max-w-[650px] text-[36px] leading-[1.2] font-bold md:text-5xl">Projects I Have Personally Created and Developed</h1>
           <p class="mt-6 text-lg leading-[1.4] text-body md:text-2xl">
-            Latest News and Articles goes here, The most powerful software & app landing page for any kind of app and software
-            marketing business.
+            From AI agents and computer vision to web GIS, IoT, and full-stack web apps: real products I designed, built, and
+            shipped, from my internship at Diskominfo Kota Bandung to personal experiments.
           </p>
         </div>
       </div>
@@ -54,3 +52,4 @@ const INITIAL = 3;
   </section>
 
 </BaseLayout>
+

@@ -17,12 +17,14 @@
     "motion": "14.6.0",
     "react": "19.1.10",
     "react-dom": "19.1.10",
-    "tailwindcss": "4.1.18"
+    "tailwindcss": "4.1.18",
+    "three": "0.170.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
+    "@types/three": "0.170.0",
     "typescript": "^5.9.3",
     "vite": "^6.4.5"
   }

@@ -1,0 +1,315 @@
+---
+// Keyboard 3D (public/models/keyboard.glb) dengan 28 tombol teknologi.
+// Arahkan kursor ke tombol (atau ketuk di HP) untuk menekannya. Three.js baru diunduh saat area ini
+// mendekati layar, dan render berhenti saat tidak terlihat.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<div class:list={['keyboard-stage relative', className]} data-keyboard>
+  <div class="keyboard-placeholder absolute inset-[12%] animate-pulse rounded-[40%] bg-surface" aria-hidden="true"></div>
+  <canvas class="relative size-full touch-pan-y opacity-0 transition-opacity duration-700" aria-label="Interactive 3D keyboard of my tech stack" role="img"></canvas>
+  <p
+    class="pointer-events-none absolute top-0 left-0 rounded-full bg-ink px-3 py-1.5 text-sm font-medium whitespace-nowrap text-white opacity-0 transition-opacity duration-200"
+    aria-hidden="true"
+    data-keyboard-label
+  >
+  </p>
+</div>
+
+<script>
+  import type { Material, Mesh, MeshStandardMaterial, Object3D } from 'three';
+  import { techStack } from '@/data/tech-stack';
+
+  type Three = typeof import('three');
+
+  // Nama node di model -> nama teknologi yang ditampilkan
+  const LABELS: Record<string, string> = {
+    JS: 'JavaScript', TS: 'TypeScript', HTML: 'HTML', CSS: 'CSS', React: 'React', Vue: 'Vue',
+    Python: 'Python', Next: 'Next.js', Tailwind: 'Tailwind CSS', Node: 'Node.js', Express: 'Express',
+    Postgres: 'PostgreSQL', Mongo: 'MongoDB', Laravel: 'Laravel', Git: 'Git', GitHub: 'GitHub',
+    Prettier: 'Prettier', npm: 'npm', Supabase: 'Supabase', FastAPI: 'FastAPI', Flutter: 'Flutter',
+    Linux: 'Linux', Docker: 'Docker', Nginx: 'Nginx', AWS: 'AWS', Vite: 'Vite', Vercel: 'Vercel',
+    GoogleCloud: 'Google Cloud',
+  };
+  const PRESS_DEPTH = 0.28; // seberapa dalam tombol turun (tinggi tombol 0,82)
+  // Posisi miring keyboard (radian)
+  const TILT = { x: 0.95, y: -0.5, z: 0.2 };
+
+  async function initKeyboard(stage: HTMLElement) {
+    const canvas = stage.querySelector('canvas')!;
+    const label = stage.querySelector<HTMLElement>('[data-keyboard-label]')!;
+    const placeholder = stage.querySelector<HTMLElement>('.keyboard-placeholder');
+
+    const [THREE, { GLTFLoader }, { RoomEnvironment }, { SVGLoader }]: [
+      Three,
+      typeof import('three/examples/jsm/loaders/GLTFLoader.js'),
+      typeof import('three/examples/jsm/environments/RoomEnvironment.js'),
+      typeof import('three/examples/jsm/loaders/SVGLoader.js'),
+    ] = await Promise.all([
+      import('three'),
+      import('three/examples/jsm/loaders/GLTFLoader.js'),
+      import('three/examples/jsm/environments/RoomEnvironment.js'),
+      import('three/examples/jsm/loaders/SVGLoader.js'),
+    ]);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    // HD: render 1,5x lebih rapat dari layar (supersampling) agar tepi tombol & logo tajam; dibatasi supaya ringan di HP
+    renderer.setPixelRatio(Math.min(Math.max(devicePixelRatio, 1) * 1.5, 2.5));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    // Tone mapping membuat warna natural (tidak pudar keputihan); exposure = kecerahan keseluruhan
+    renderer.toneMapping = THREE.NeutralToneMapping;
+    renderer.toneMappingExposure = 0.95;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    // Kecerahan: pantulan lingkungan, cahaya utama (dari kanan atas, memberi bayangan lembut), dan cahaya pengisi
+    scene.environmentIntensity = 0.3;
+    const sun = new THREE.DirectionalLight(0xffffff, 1.8);
+    sun.position.set(4, 9, 6);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.left = sun.shadow.camera.bottom = -6;
+    sun.shadow.camera.right = sun.shadow.camera.top = 6;
+    sun.shadow.camera.near = 1;
+    sun.shadow.camera.far = 30;
+    sun.shadow.bias = -0.0004;
+    sun.shadow.normalBias = 0.02;
+    sun.shadow.radius = 4;
+    scene.add(sun, new THREE.HemisphereLight(0xffffff, 0x6f6f6f, 0.12));
+
+    const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
+
+    const gltf = await new GLTFLoader().loadAsync('/models/keyboard.glb');
+    const model = gltf.scene;
+    // Pusatkan model, lalu masukkan ke grup yang dimiringkan
+    const center = new THREE.Box3().setFromObject(model).getCenter(new THREE.Vector3());
+    model.position.sub(center);
+    const tilt = new THREE.Group();
+    tilt.add(model);
+    tilt.rotation.set(TILT.x, TILT.y, TILT.z);
+    scene.add(tilt);
+
+    // Mengganti logo sebuah tombol dengan logo dari path SVG, dibuat timbul 3D. Logo asli di model berupa pelat
+    // setebal 0,035 di atas tombol (z 0,82), selebar 0,5 dalam koordinat tombol. `lift` menaikkan lapisan yang
+    // menumpuk di atas lapisan lain; `gradient` memakai koordinat SVG seperti linearGradient userSpaceOnUse.
+    type LogoLayer = {
+      d: string;
+      color?: string;
+      gradient?: { from: [number, number]; to: [number, number]; stops: [number, string][] };
+      lift?: number;
+    };
+    const svgLoader = new SVGLoader();
+    const replaceLogo = (key: Mesh, viewBox: [number, number], layers: LogoLayer[], plainMaterial: Material) => {
+      for (const child of [...key.children]) {
+        key.remove(child);
+        (child as Mesh).geometry?.dispose();
+      }
+      const [vw, vh] = viewBox;
+      const size = 0.5 / Math.max(vw, vh);
+      for (const layer of layers) {
+        const svg = svgLoader.parse(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vw} ${vh}"><path d="${layer.d}"/></svg>`);
+        const shapes = svg.paths.flatMap((path) => SVGLoader.createShapes(path));
+        const depth = 0.035 + (layer.lift ?? 0);
+        const geometry = new THREE.ExtrudeGeometry(shapes, { depth: depth / size, bevelEnabled: false, curveSegments: 24 });
+
+        let material = plainMaterial;
+        if (layer.gradient) {
+          const { from: [x1, y1], to: [x2, y2], stops } = layer.gradient;
+          const stopColors = stops.map(([offset, hex]) => [offset, new THREE.Color(hex)] as const);
+          const pos = geometry.attributes.position;
+          const colors = new Float32Array(pos.count * 3);
+          const color = new THREE.Color();
+          const lenSq = (x2 - x1) ** 2 + (y2 - y1) ** 2;
+          for (let i = 0; i < pos.count; i++) {
+            const t = THREE.MathUtils.clamp(((pos.getX(i) - x1) * (x2 - x1) + (pos.getY(i) - y1) * (y2 - y1)) / lenSq, 0, 1);
+            const next = stopColors.findIndex(([offset]) => offset >= t);
+            const [o1, c1] = stopColors[Math.max(next - 1, 0)];
+            const [o2, c2] = stopColors[next === -1 ? stopColors.length - 1 : next];
+            color.copy(c1).lerp(c2, o2 > o1 ? (t - o1) / (o2 - o1) : 0).toArray(colors, i * 3);
+          }
+          geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+          material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.45, metalness: 0 });
+        } else if (layer.color) {
+          material = new THREE.MeshStandardMaterial({ color: layer.color, roughness: 0.45, metalness: 0 });
+        }
+
+        geometry.rotateX(Math.PI); // sumbu Y SVG mengarah ke bawah; rotasi (bukan skala negatif) agar sisi muka tidak terbalik
+        geometry.scale(size, size, size);
+        geometry.translate((-vw * size) / 2, (vh * size) / 2, 0.82 + depth);
+        key.add(new THREE.Mesh(geometry, material));
+      }
+    };
+    const findKey = (name: string) => model.getObjectByName(name) as Mesh | undefined;
+    const whiteLogo = (findKey('Key_JS')?.children[0] as Mesh | undefined)?.material as Material;
+
+    // WordPress -> FastAPI: tombol teal + logo FastAPI putih
+    const fastapi = techStack.find((t) => t.name === 'FastAPI');
+    const fastapiKey = findKey('Key_WordPress');
+    if (fastapiKey && fastapi && whiteLogo) {
+      fastapiKey.name = 'Key_FastAPI';
+      fastapiKey.material = (fastapiKey.material as MeshStandardMaterial).clone(); // material ini dipakai bersama tombol lain
+      (fastapiKey.material as MeshStandardMaterial).color.set(fastapi.color);
+      replaceLogo(fastapiKey, [24, 24], [{ d: fastapi.path }], whiteLogo);
+    }
+
+    // Vite: logo klasik resmi (segitiga gradasi biru-ungu + petir gradasi kuning-oranye) di atas tombol putih
+    const viteKey = findKey('Key_Vite');
+    const whiteKey = findKey('Key_GoogleCloud');
+    if (viteKey && whiteKey && whiteLogo) {
+      viteKey.material = whiteKey.material;
+      replaceLogo(viteKey, [410, 404], [
+        {
+          d: 'M399.641 59.5246L215.643 388.545C211.844 395.338 202.084 395.378 198.228 388.618L10.5817 59.5563C6.38087 52.1896 12.6802 43.2665 21.0281 44.7586L205.223 77.6824C206.398 77.8924 207.601 77.8904 208.776 77.6763L389.119 44.8058C397.439 43.2894 403.768 52.1434 399.641 59.5246Z',
+          gradient: { from: [6, 33], to: [235, 344], stops: [[0, '#41D1FF'], [1, '#BD34FE']] },
+        },
+        {
+          d: 'M292.965 1.5744L156.801 28.2552C154.563 28.6937 152.906 30.5903 152.771 32.8664L144.395 174.33C144.198 177.662 147.258 180.248 150.51 179.498L188.42 170.749C191.967 169.931 195.172 173.055 194.443 176.622L183.18 231.775C182.422 235.487 185.907 238.661 189.532 237.56L212.947 230.446C216.577 229.344 220.065 232.527 219.297 236.242L201.398 322.875C200.278 328.294 207.486 331.249 210.492 326.603L212.5 323.5L323.454 102.072C325.312 98.3645 322.108 94.137 318.036 94.9228L279.014 102.454C275.347 103.161 272.227 99.746 273.262 96.1583L298.731 7.86689C299.767 4.27314 296.636 0.855181 292.965 1.5744Z',
+          gradient: { from: [194.65, 8.82], to: [236.08, 292.99], stops: [[0, '#FFEA83'], [0.083, '#FFDD35'], [1, '#FFA800']] },
+          lift: 0.012,
+        },
+      ], whiteLogo);
+    }
+
+    model.traverse((o) => {
+      o.castShadow = true;
+      o.receiveShadow = true;
+    });
+    const keys = model.children.filter((o) => o.name.startsWith('Key_'));
+    const state = new Map(keys.map((k) => [k, { rest: k.position.y, offset: 0, target: 0 }]));
+
+    // Jarak kamera dihitung dari 8 sudut keyboard yang sudah dimiringkan, supaya keyboard memenuhi kanvas
+    // (dengan sedikit ruang di tepi)
+    const localBox = new THREE.Box3().setFromObject(model);
+    const corners = [0, 1, 2, 3, 4, 5, 6, 7].map(
+      (i) => new THREE.Vector3(i & 1 ? localBox.max.x : localBox.min.x, i & 2 ? localBox.max.y : localBox.min.y, i & 4 ? localBox.max.z : localBox.min.z),
+    );
+    const projected = new THREE.Vector3();
+    const fit = () => {
+      const { clientWidth: w, clientHeight: h } = stage;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      tilt.rotation.set(TILT.x, TILT.y, TILT.z);
+      tilt.updateMatrixWorld();
+      let dist = 12;
+      for (let i = 0; i < 4; i++) {
+        camera.position.set(0, 0, dist);
+        camera.lookAt(0, 0, 0);
+        camera.updateProjectionMatrix();
+        camera.updateMatrixWorld();
+        let extent = 0;
+        for (const c of corners) {
+          projected.copy(c).applyMatrix4(tilt.matrixWorld).project(camera);
+          extent = Math.max(extent, Math.abs(projected.x), Math.abs(projected.y));
+        }
+        dist *= extent / 0.9;
+      }
+      camera.position.set(0, 0, dist);
+      camera.updateProjectionMatrix();
+      requestRender();
+    };
+
+    // Render hanya saat ada yang bergerak
+    let frame = 0;
+    let visible = true;
+    const tick = () => {
+      frame = 0;
+      let moving = false;
+      for (const [key, s] of state) {
+        const diff = s.target - s.offset;
+        if (Math.abs(diff) > 0.001) {
+          s.offset += diff * 0.35;
+          moving = true;
+        } else s.offset = s.target;
+        key.position.y = s.rest + s.offset;
+      }
+      renderer.render(scene, camera);
+      if (moving) requestRender();
+    };
+    function requestRender() {
+      if (!frame && visible) frame = requestAnimationFrame(tick);
+    }
+
+    // Tekan tombol di bawah kursor
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    let hovered: Object3D | null = null;
+    const keyAt = (e: PointerEvent) => {
+      const r = canvas.getBoundingClientRect();
+      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      raycaster.setFromCamera(ndc, camera);
+      const hit = raycaster.intersectObjects(keys, true)[0];
+      let obj: Object3D | null = hit?.object ?? null;
+      while (obj && !obj.name.startsWith('Key_')) obj = obj.parent;
+      return obj;
+    };
+    const press = (key: Object3D | null) => {
+      if (key === hovered) return;
+      if (hovered) state.get(hovered)!.target = 0;
+      hovered = key;
+      if (key) state.get(key)!.target = -PRESS_DEPTH;
+      canvas.style.cursor = key ? 'pointer' : '';
+      requestRender();
+    };
+    const showLabel = (key: Object3D | null, e: PointerEvent) => {
+      if (!key) return void (label.style.opacity = '0');
+      const r = stage.getBoundingClientRect();
+      label.textContent = LABELS[key.name.slice(4)] ?? key.name.slice(4);
+      label.style.transform = `translate(${e.clientX - r.left + 14}px, ${e.clientY - r.top - 36}px)`;
+      label.style.opacity = '1';
+    };
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const key = keyAt(e);
+      press(key);
+      showLabel(key, e);
+    });
+    canvas.addEventListener('pointerleave', () => {
+      press(null);
+      label.style.opacity = '0';
+    });
+    // Layar sentuh: ketuk untuk menekan, tombol naik lagi sesaat kemudian
+    let releaseTimer = 0;
+    canvas.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      const key = keyAt(e);
+      press(key);
+      showLabel(key, e);
+      clearTimeout(releaseTimer);
+      releaseTimer = window.setTimeout(() => {
+        press(null);
+        label.style.opacity = '0';
+      }, 700);
+    });
+
+    new ResizeObserver(fit).observe(stage);
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) requestRender();
+    }).observe(stage);
+
+    fit();
+    renderer.render(scene, camera);
+    canvas.classList.remove('opacity-0');
+    placeholder?.remove();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-keyboard]').forEach((stage) => {
+    // Unduh Three.js + model hanya saat keyboard hampir terlihat
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        initKeyboard(stage).catch(() => stage.remove());
+      },
+      { rootMargin: '200px' },
+    );
+    io.observe(stage);
+  });
+</script>
