@@ -4,7 +4,6 @@
 //   [data-word-reveal]     warna kata berubah abu-abu -> hitam mengikuti scroll
 //   [data-stack]           kartu sticky yang mengecil saat kartu berikutnya menumpuk
 //   [data-load-more]       tombol untuk menampilkan item tersembunyi
-//   .yt-embed[data-id]     thumbnail YouTube yang berubah jadi iframe saat diklik
 import { animate, inView, scroll } from 'motion';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -90,23 +89,6 @@ function initLoadMore() {
   });
 }
 
-function initYouTube() {
-  document.querySelectorAll<HTMLElement>('.yt-embed[data-id]').forEach((el) => {
-    const id = el.dataset.id!;
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'yt-embed__button';
-    button.setAttribute('aria-label', 'Play video');
-    button.style.backgroundImage = `url(https://i.ytimg.com/vi_webp/${id}/maxresdefault.webp)`;
-    button.innerHTML =
-      '<span class="yt-embed__play"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>';
-    button.addEventListener('click', () => {
-      el.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="YouTube video" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-    });
-    el.replaceChildren(button);
-  });
-}
-
 /** Lingkaran lime "View case" yang mengikuti kursor di atas kartu proyek (desktop saja). */
 function initViewCaseCursor() {
   const targets = document.querySelectorAll<HTMLElement>('[data-view-case]');
@@ -155,4 +137,3 @@ initViewCaseCursor();
 initWordReveal();
 initStack();
 initLoadMore();
-initYouTube();

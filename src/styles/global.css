@@ -102,24 +102,6 @@ html.js [data-reveal] {
   @apply md:cursor-none;
 }
 
-/* ---------- Embed YouTube ringan (lihat initYouTube di animations.ts) ---------- */
-.yt-embed {
-  @apply relative my-16 aspect-video overflow-hidden rounded-card bg-ink md:rounded-section;
-}
-.yt-embed iframe,
-.yt-embed__button {
-  @apply absolute inset-0 size-full border-0;
-}
-.yt-embed__button {
-  @apply flex cursor-pointer items-center justify-center bg-cover bg-center;
-}
-.yt-embed__play {
-  @apply flex h-12 w-[68px] items-center justify-center rounded-xl bg-ink/80 text-white transition-colors duration-300;
-}
-.yt-embed__button:hover .yt-embed__play {
-  @apply bg-[#f00];
-}
-
 /* ---------- Konten studi kasus ---------- */
 .prose-portox {
   @apply text-lg leading-[1.5] text-body;
