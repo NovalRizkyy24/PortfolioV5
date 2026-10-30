@@ -1,0 +1,55 @@
+---
+import { Image } from 'astro:assets';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { featuredCertificates } from '@/data/certificates';
+
+// Masonry diisi berulang dari sertifikat unggulan supaya tidak ada kolom yang kosong di bawah;
+// isi yang melebihi tinggi kontainer terpotong (overflow hidden).
+const FILL_COUNT = 24;
+const tiles = Array.from({ length: FILL_COUNT }, (_, i) => ({
+  cert: featuredCertificates[i % featuredCertificates.length],
+  duplicate: i >= featuredCertificates.length,
+}));
+const viewAllHref = '/about?view=certificates#certificates';
+---
+
+<!-- Tinggi section = 1 layar (judul + kontainer); padding atas memberi ruang untuk navbar fixed -->
+<section class="container-page flex h-svh min-h-[600px] flex-col pt-[96px] pb-6 max-[600px]:pt-[70px] md:pb-10">
+  <div class="mb-6 flex flex-col items-center gap-4 text-center md:mb-8 md:flex-row md:justify-between md:text-left">
+    <h2 class="text-[32px] leading-[1.2] font-bold md:text-[56px]" data-reveal>Certificates</h2>
+    <Button href={viewAllHref} variant="outline" class="max-md:hidden" data-reveal>View all certificates</Button>
+  </div>
+
+  <a
+    href={viewAllHref}
+    class="group relative block min-h-0 flex-1 overflow-hidden rounded-section bg-ink p-3 md:p-4"
+    aria-label="View all certificates"
+    data-reveal
+  >
+    <div class="columns-2 gap-3 md:columns-3 md:gap-4 lg:columns-4" aria-hidden="true">
+      {
+        tiles.map(({ cert, duplicate }) => (
+          <div class="mb-3 break-inside-avoid overflow-hidden rounded-card bg-white md:mb-4">
+            <Image
+              src={cert.image}
+              alt={duplicate ? '' : `${cert.title} certificate`}
+              widths={[320, 480, 640]}
+              sizes="(min-width: 1200px) 320px, (min-width: 810px) 33vw, 50vw"
+              loading="lazy"
+              class="w-full transition-transform duration-700 ease-out-quint group-hover:scale-[1.03]"
+            />
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Gradasi bawah + tombol: memberi tanda bahwa kontainer bisa diklik -->
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 flex h-2/5 items-end justify-center bg-linear-to-t from-ink via-ink/70 to-transparent pb-6 md:pb-10">
+      <span class="flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-medium text-ink transition-transform duration-500 ease-out-quint group-hover:scale-105">
+        View all certificates
+        <Icon name="arrow-right" size={18} />
+      </span>
+    </div>
+  </a>
+</section>
