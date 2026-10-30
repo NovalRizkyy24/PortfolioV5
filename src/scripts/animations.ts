@@ -141,9 +141,17 @@ function initViewCaseCursor() {
   }, { passive: true });
 }
 
-initReveal();
+// Animasi masuk ditunda sampai layar pembuka (Preloader.astro) selesai
+if (document.documentElement.classList.contains('preloading')) {
+  window.addEventListener('preloader:done', () => {
+    initReveal();
+    initCounters();
+  }, { once: true });
+} else {
+  initReveal();
+  initCounters();
+}
 initViewCaseCursor();
-initCounters();
 initWordReveal();
 initStack();
 initLoadMore();

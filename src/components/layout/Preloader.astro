@@ -1,0 +1,145 @@
+---
+// Layar pembuka gaya "Loadar": nama di kiri atas, garis progres di tengah, hitungan 0-100 besar di kanan bawah,
+// lalu panel naik ke atas dengan tepi bawah melengkung. Tampil sekali per sesi browser.
+// Kelas `preloading` dipasang di <html> oleh skrip inline di BaseLayout sebelum halaman digambar.
+const name = 'Noval Rizky Nugraha';
+---
+
+<div class="preloader" aria-hidden="true">
+  <div class="preloader__mask">
+    <div class="preloader__content">
+      <p class="preloader__brand">
+        {[...name].map((char) => <span class="preloader__char">{char === ' ' ? ' ' : char}</span>)}
+      </p>
+      <div class="preloader__track"><div class="preloader__bar"></div></div>
+      <p class="preloader__count"><span data-preloader-count>0</span><span class="preloader__percent">%</span></p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .preloader {
+    display: none;
+  }
+  :global(html.preloading) {
+    overflow: hidden;
+  }
+  :global(html.preloading) .preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: block;
+    overflow: hidden;
+  }
+  /* Lebih lebar dari layar supaya lengkungan elips di tepi bawah terlihat landai saat naik */
+  .preloader__mask {
+    position: absolute;
+    bottom: 0;
+    left: -10vw;
+    width: 120vw;
+    height: 100dvh;
+    overflow: hidden;
+    background: #fff;
+    color: #080807;
+  }
+  .preloader__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100vw;
+    height: 100%;
+    margin-left: 10vw;
+    padding: 12px;
+  }
+  .preloader__brand {
+    display: flex;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: -0.05em;
+  }
+  .preloader__char {
+    display: inline-block;
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(10px);
+  }
+  .preloader__track {
+    height: 2px;
+    overflow: hidden;
+  }
+  .preloader__bar {
+    width: 0;
+    height: 100%;
+    background: currentColor;
+  }
+  .preloader__count {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    font-family: 'Inter Tight', var(--font-sans);
+    font-size: clamp(96px, 16vw, 200px);
+    font-weight: 300;
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    font-variant-numeric: tabular-nums;
+  }
+  .preloader__percent {
+    margin-left: 0.08em;
+    font-size: 0.24em;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+  /* Animasi hero menunggu sampai layar pembuka selesai */
+  :global(html.preloading .hero-image) {
+    animation-play-state: paused;
+  }
+</style>
+
+<script>
+  import { animate, stagger } from 'motion';
+
+  const root = document.documentElement;
+  const loader = document.querySelector<HTMLElement>('.preloader');
+
+  if (loader && root.classList.contains('preloading')) {
+    const mask = loader.querySelector<HTMLElement>('.preloader__mask')!;
+    const chars = loader.querySelectorAll<HTMLElement>('.preloader__char');
+    const bar = loader.querySelector<HTMLElement>('.preloader__bar')!;
+    const count = loader.querySelector<HTMLElement>('[data-preloader-count]')!;
+    // Garis dan angka memakai durasi & easing yang sama supaya bergerak serempak
+    const duration = 3;
+    const progressEase = [0.12, 0.23, 0.5, 1] as const;
+    const pageLoaded = new Promise<void>((resolve) =>
+      document.readyState === 'complete' ? resolve() : window.addEventListener('load', () => resolve(), { once: true }),
+    );
+
+    const finish = () => {
+      try {
+        sessionStorage.setItem('preloaded', '1');
+      } catch {}
+      root.classList.remove('preloading');
+      window.dispatchEvent(new Event('preloader:done'));
+    };
+
+    (async () => {
+      animate(
+        chars,
+        { opacity: 1, filter: 'blur(0px)', y: 0 },
+        { type: 'spring', stiffness: 200, damping: 40, delay: stagger(0.02, { startDelay: 0.05 }) },
+      );
+      animate(bar, { width: ['0%', '100%'] }, { duration, ease: progressEase });
+      await animate(0, 100, {
+        duration,
+        ease: progressEase,
+        onUpdate: (v) => (count.textContent = String(Math.round(v))),
+      });
+      await Promise.all([pageLoaded, new Promise((r) => setTimeout(r, 100))]);
+      await animate(
+        mask,
+        { y: 'calc(-100% - 10px)', borderBottomLeftRadius: '50%', borderBottomRightRadius: '50%' },
+        { duration: 0.6, ease: [0.77, 0.02, 0.24, 1.02] },
+      );
+      finish();
+    })().catch(finish);
+  }
+</script>

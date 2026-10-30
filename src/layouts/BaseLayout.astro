@@ -3,6 +3,7 @@ import '@/styles/global.css';
 import { site } from '@/data/site';
 import Header from '@/components/layout/Header.astro';
 import Footer from '@/components/layout/Footer.astro';
+import Preloader from '@/components/layout/Preloader.astro';
 
 interface Props {
   title?: string;
@@ -40,14 +41,31 @@ const ogImage = new URL(image, Astro.site);
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600;700;800&family=Inter+Tight:wght@700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600;700;800&family=Inter+Tight:wght@300;700;800&display=swap" rel="stylesheet" />
 
     <!-- Tandai bahwa JS aktif supaya elemen [data-reveal] baru disembunyikan kalau animasinya bisa jalan -->
     <script is:inline>
       document.documentElement.classList.add('js');
+      // Layar pembuka hanya di kunjungan pertama per sesi dan bila animasi tidak dibatasi
+      (() => {
+        try {
+          if (sessionStorage.getItem('preloaded') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        } catch {
+          return;
+        }
+        const root = document.documentElement;
+        root.classList.add('preloading');
+        // Cadangan: jangan sampai halaman tertutup terus kalau skrip animasi gagal dimuat
+        setTimeout(() => {
+          if (!root.classList.contains('preloading')) return;
+          root.classList.remove('preloading');
+          dispatchEvent(new Event('preloader:done'));
+        }, 8000);
+      })();
     </script>
   </head>
   <body id="top">
+    <Preloader />
     <Header />
     <!-- Navbar fixed tidak memakan ruang, jadi beri jarak setinggi navbar kecuali konten memang ditaruh di baliknya -->
     <main class:list={[!overlayHeader && 'pt-[80px] max-[600px]:pt-[54px]']}>
