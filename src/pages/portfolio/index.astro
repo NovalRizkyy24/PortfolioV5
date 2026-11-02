@@ -8,6 +8,13 @@ import KeyboardScene from '@/components/KeyboardScene.astro';
 
 const projects = (await getCollection('projects')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const INITIAL = 3;
+
+// Ringkasan di header: jenis proyek, bidang, dan teknologi utama
+const highlights = [
+  { label: 'Projects', text: 'Personal products, internship work for Diskominfo Kota Bandung, and course projects.' },
+  { label: 'Fields', text: 'AI & machine learning, full-stack web, web GIS, IoT, and cloud.' },
+  { label: 'Technologies', text: 'React, Next.js, Node.js, Python, FastAPI, PostgreSQL, Docker, and Google Cloud.' },
+];
 ---
 
 <BaseLayout title="Portfolio" description="Projects I have personally created and developed.">
@@ -22,6 +29,16 @@ const INITIAL = 3;
             From AI agents and computer vision to web GIS, IoT, and full-stack web apps: real products I designed, built, and
             shipped, from my internship at Diskominfo Kota Bandung to personal experiments.
           </p>
+          <dl class="mt-8 grid gap-5 border-t border-line pt-6 sm:grid-cols-3 md:mt-10 md:gap-8">
+            {
+              highlights.map((item) => (
+                <div>
+                  <dt class="text-sm font-semibold tracking-[0.15em] text-ink uppercase">{item.label}</dt>
+                  <dd class="mt-2 leading-[1.5] text-body">{item.text}</dd>
+                </div>
+              ))
+            }
+          </dl>
         </div>
       </div>
     </section>
